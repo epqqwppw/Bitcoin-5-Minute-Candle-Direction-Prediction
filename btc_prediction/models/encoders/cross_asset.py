@@ -224,14 +224,14 @@ class CrossAssetEncoder(nn.Module):
         corr_matrix = self.correlation_net(returns)  # [B, A, A]
 
         # --- Cross-attention modulated by correlation ---
-        # Use correlation as attention bias
-        corr_bias = corr_matrix.unsqueeze(1).expand(
-            -1, self.cross_attention.num_heads, -1, -1,
-        ).reshape(batch * self.cross_attention.num_heads,
-                  self.num_assets, self.num_assets)
+        # Modulate asset representations with correlation before attention.
+        # corr_matrix ∈ (-1, 1) with unit diagonal; use it as a soft
+        # adjacency to mix neighbour information into keys/values.
+        corr_weighted_stack = torch.bmm(
+            corr_matrix, asset_stack,
+        )  # [B, num_assets, hidden]
         attn_out, _ = self.cross_attention(
-            asset_stack, asset_stack, asset_stack,
-            attn_mask=corr_bias,
+            asset_stack, corr_weighted_stack, corr_weighted_stack,
         )  # [B, num_assets, hidden]
         asset_attended = self.cross_norm(asset_stack + attn_out)
 
