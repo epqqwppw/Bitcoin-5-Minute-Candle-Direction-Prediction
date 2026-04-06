@@ -223,10 +223,7 @@ class GatedFusion(nn.Module):
             ValueError: If the number of inputs doesn't match ``num_inputs``.
         """
         if len(inputs) != self.num_inputs:
-            msg = (
-                f"Expected {self.num_inputs} inputs, got {len(inputs)}"
-            )
-            raise ValueError(msg)
+            raise ValueError(f"Expected {self.num_inputs} inputs, got {len(inputs)}")
 
         # Compute per-input gate logits  → [num_inputs, batch, *, input_dim]
         gate_logits = torch.stack(

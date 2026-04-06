@@ -224,14 +224,14 @@ class OrderBookGraphBuilder:
         price_diff = (
             prices.unsqueeze(2) - prices.unsqueeze(1)
         ).abs()  # [B, 2L, 2L]
-        price_std = prices.std(dim=1, keepdim=True).unsqueeze(2).clamp(min=1e-8)
+        price_std = prices.std(dim=1).unsqueeze(1).unsqueeze(2).clamp(min=1e-8)
         price_sim = torch.exp(-price_diff / price_std)
 
         # Volume similarity: exp(-|v_i - v_j| / σ_v)
         vol_diff = (
             volumes.unsqueeze(2) - volumes.unsqueeze(1)
         ).abs()  # [B, 2L, 2L]
-        vol_std = volumes.std(dim=1, keepdim=True).unsqueeze(2).clamp(min=1e-8)
+        vol_std = volumes.std(dim=1).unsqueeze(1).unsqueeze(2).clamp(min=1e-8)
         vol_sim = torch.exp(-vol_diff / vol_std)
 
         # Combined edge weights (element-wise product)

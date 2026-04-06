@@ -175,8 +175,9 @@ class WaveNet(nn.Module):
         """
         h = self.input_conv(x)  # [batch, residual_channels, time]
 
-        skip_sum = torch.zeros_like(h[:, :1, :]).expand(
-            -1, self.residual_blocks[0].skip_conv.out_channels, -1,
+        skip_channels = self.residual_blocks[0].skip_conv.out_channels
+        skip_sum = torch.zeros(
+            h.size(0), skip_channels, h.size(2), device=h.device, dtype=h.dtype,
         )  # [batch, skip_channels, time]
 
         for block in self.residual_blocks:
